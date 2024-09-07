@@ -70,7 +70,7 @@ class AuthorController extends Controller
             $author->save();
 
             return response()->json([
-                'httpCode' => 200,
+                'httpCode' => 201,
                 'status' => true,
                 'message' => 'Author created successfully!',
                 'data' => $author
@@ -206,6 +206,7 @@ class AuthorController extends Controller
                 'message' => 'Delete successfully!',
                 'data' => []
             ], 200);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'httpCode' => 500,

@@ -70,7 +70,7 @@ class BookController extends Controller
             $book->save();
 
             return response()->json([
-                'httpCode' => 200,
+                'httpCode' => 201,
                 'status' => true,
                 'message' => 'Book created successfully!',
                 'data' => $book
@@ -157,10 +157,10 @@ class BookController extends Controller
             if ($request->has('title')) {
                 $book->title = $request->input('title');
             }
-            if ($request->has('bio')) {
+            if ($request->has('description')) {
                 $book->description = $request->input('description');
             }
-            if ($request->has('birth_date')) {
+            if ($request->has('publish_date')) {
                 $book->publish_date = $request->input('publish_date');
             }
 
