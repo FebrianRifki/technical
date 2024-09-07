@@ -6,11 +6,49 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use OpenApi\Annotations as OA;
 
 class BookController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/books",
+     *     summary="Get a list of books",
+     *     tags={"Books"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Books retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="ok"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="author_id", type="integer"),
+     *                     @OA\Property(property="title", type="string"),
+     *                     @OA\Property(property="description", type="string"),
+     *                     @OA\Property(property="publish_date", type="string", format="date")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error when fetching data"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function index()
     {
@@ -36,7 +74,57 @@ class BookController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/books",
+     *     summary="Create a new book",
+     *     tags={"Books"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"author_id", "title", "description", "publish_date"},
+     *             @OA\Property(property="author_id", type="integer", example=1),
+     *             @OA\Property(property="title", type="string", example="Book Title"),
+     *             @OA\Property(property="description", type="string", example="Book description"),
+     *             @OA\Property(property="publish_date", type="string", format="date", example="2024-01-01")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Book created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=201),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Book created successfully!"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/Book"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=422),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="data", type="object", additionalProperties=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error saving book to the database"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -86,7 +174,54 @@ class BookController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/books/{id}",
+     *     summary="Get a specific book",
+     *     tags={"Books"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Book ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Book retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Success"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/Book"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Book not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=404),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Book not found"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error fetching Book"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function show(string $id)
     {
@@ -122,7 +257,73 @@ class BookController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/books/{id}",
+     *     summary="Update an existing book",
+     *     tags={"Books"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Book ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="title", type="string", example="Updated Book Title"),
+     *             @OA\Property(property="description", type="string", example="Updated description"),
+     *             @OA\Property(property="publish_date", type="string", format="date", example="2024-02-01")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Book updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Book updated successfully!"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/Book"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=422),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="data", type="object", additionalProperties=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Book not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=404),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Book Not Found!"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error while update book data"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function update(Request $request, string $id)
     {
@@ -184,7 +385,51 @@ class BookController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/books/{id}",
+     *     summary="Delete a specific book",
+     *     tags={"Books"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Book ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Book deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Delete successfully!"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Book not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=404),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Book Not Found!"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error while delete book data"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function destroy(string $id)
     {

@@ -7,12 +7,48 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Info(
+ *     version="1.0",
+ *     title="API Documentation",
+ *     description="Documentation for Author and Book API",
+ *     @OA\Contact(name="Swagger API Team")
+ * )
+ */
 
 class AuthorController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/authors",
+     *     summary="Get all authors",
+     *     tags={"Authors"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="ok"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Author")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     )
+     * )
+     * 
      */
+
     public function index()
     {
 
@@ -38,7 +74,56 @@ class AuthorController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/authors",
+     *     summary="Create a new author",
+     *     tags={"Authors"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "bio", "birth_date"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="bio", type="string", example="Author biography"),
+     *             @OA\Property(property="birth_date", type="string", format="date", example="1980-01-01")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Author created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=201),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Author created successfully!"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/Author"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=422),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="data", type="object", additionalProperties=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error saving author to the database"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -86,7 +171,54 @@ class AuthorController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/authors/{id}",
+     *     summary="Get a specific author",
+     *     tags={"Authors"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Author ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Author retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Success"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/Author"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Author not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=404),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Author not found"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error fetching author"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function show(string $id)
     {
@@ -122,7 +254,73 @@ class AuthorController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/authors/{id}",
+     *     summary="Update an existing author",
+     *     tags={"Authors"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Author ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="John Doe Updated"),
+     *             @OA\Property(property="bio", type="string", example="Updated biography"),
+     *             @OA\Property(property="birth_date", type="string", format="date", example="1981-01-01")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Author updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Author updated successfully!"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/Author"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=422),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="data", type="object", additionalProperties=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Author not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=404),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Author Not Found!"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error while update author data"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function update(Request $request, string $id)
     {
@@ -184,7 +382,51 @@ class AuthorController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/authors/{id}",
+     *     summary="Delete a specific author",
+     *     tags={"Authors"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Author ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Author deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Delete successfully!"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Author not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=404),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Author Not Found!"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=500),
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Error while delete author data"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function destroy(string $id)
     {
@@ -206,7 +448,6 @@ class AuthorController extends Controller
                 'message' => 'Delete successfully!',
                 'data' => []
             ], 200);
-
         } catch (\Throwable $th) {
             return response()->json([
                 'httpCode' => 500,
@@ -218,7 +459,40 @@ class AuthorController extends Controller
     }
 
     /**
-     * display assosated data.
+     * @OA\Get(
+     *     path="/api/authors/{id}/books",
+     *     summary="Get books by a specific author",
+     *     tags={"Authors"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Author ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Books retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="httpCode", type="integer", example=200),
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Books retrieved successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="title", type="string"),
+     *                     @OA\Property(property="author_id", type="integer"),
+     *                     @OA\Property(property="published_date", type="string", format="date"),
+     *                     @OA\Property(property="author_name", type="string")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function getBooksByAuthor(string $id)
     {
